@@ -29,6 +29,8 @@ if (process.env.SERVER_ENV !== "development") {
   sessionOptions.cookie = {
     sameSite: "none",
     secure: true,
+    // Partitioned lets browsers that block third-party cookies keep this one for the client site.
+    partitioned: true,
     domain: process.env.SERVER_URL,
   };
 }
