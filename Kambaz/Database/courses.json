@@ -1,0 +1,62 @@
+[
+  {
+    "_id": "RS101",
+    "name": "Rocket Propulsion",
+    "number": "RS4550",
+    "startDate": "2023-01-10",
+    "endDate": "2023-05-15",
+    "department": "D123",
+    "credits": 4,
+    "description": "This course provides an in-depth study of the fundamentals of rocket propulsion, including thermodynamics of the combustion chamber and nozzle. Students analyze solid, liquid, and hybrid rocket motors and apply propulsion theory to engine performance.",
+    "image": "/images/reactjs.jpg",
+    "term": "Spring 2023"
+  },
+  {
+    "_id": "RS102",
+    "name": "Aerodynamics",
+    "number": "RS4560",
+    "startDate": "2023-01-10",
+    "endDate": "2023-05-15",
+    "department": "D123",
+    "credits": 3,
+    "description": "This course explores the principles of aerodynamics and how airflow interacts with wings, airfoils, and other flying bodies. Students study lift, drag, compressible flow, and the aerodynamic considerations used in aircraft and spacecraft design.",
+    "image": "/images/nodejs.jpg",
+    "term": "Spring 2023"
+  },
+  {
+    "_id": "RS103",
+    "name": "Spacecraft Design",
+    "number": "RS4570",
+    "startDate": "2023-01-10",
+    "endDate": "2023-05-15",
+    "department": "D123",
+    "credits": 4,
+    "description": "This course covers the principles of spacecraft design, including structures, propulsion, thermal control, and power systems. Students apply systems engineering methods to mission design, orbital mechanics, and payload integration for current and future space missions.",
+    "image": "/images/mongodb.jpg",
+    "term": "Spring 2023"
+  },
+  {
+    "_id": "RS105",
+    "name": "Web Development",
+    "number": "RS5610",
+    "startDate": "2023-01-10",
+    "endDate": "2023-05-15",
+    "department": "D123",
+    "credits": 4,
+    "description": "This course covers building full-stack web applications with HTML, CSS, JavaScript, React, and Next.js. Students design data-driven interfaces and connect them to servers and databases.",
+    "image": "/images/teslabot.jpg",
+    "term": "Spring 2023"
+  },
+  {
+    "_id": "RS104",
+    "name": "Organic Chemistry",
+    "number": "RS4580",
+    "startDate": "2023-01-10",
+    "endDate": "2023-05-15",
+    "department": "D123",
+    "credits": 4,
+    "description": "This course introduces the structure, properties, and reactions of carbon-based compounds, with an emphasis on reaction mechanisms and laboratory techniques.",
+    "image": "/images/reactjs.jpg",
+    "term": "Spring 2023"
+  }
+]
