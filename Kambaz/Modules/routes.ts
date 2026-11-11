@@ -1,4 +1,5 @@
 import ModulesDao from "./dao";
+import { requireUser, requireFaculty } from "../authorize";
 export default function ModuleRoutes(app) {
   const dao = ModulesDao();
   const findModulesForCourse = async (req, res) => {
@@ -23,8 +24,8 @@ export default function ModuleRoutes(app) {
     const status = await dao.updateModule(moduleId, moduleUpdates);
     res.send(status);
   };
-  app.get("/api/courses/:courseId/modules", findModulesForCourse);
-  app.post("/api/courses/:courseId/modules", createModuleForCourse);
-  app.delete("/api/modules/:moduleId", deleteModule);
-  app.put("/api/modules/:moduleId", updateModule);
+  app.get("/api/courses/:courseId/modules", requireUser, findModulesForCourse);
+  app.post("/api/courses/:courseId/modules", requireFaculty, createModuleForCourse);
+  app.delete("/api/modules/:moduleId", requireFaculty, deleteModule);
+  app.put("/api/modules/:moduleId", requireFaculty, updateModule);
 }

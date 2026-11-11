@@ -10,6 +10,7 @@ const courseSchema = new mongoose.Schema({
   description: String,
   image: String,
   term: String,
+  author: { type: String, ref: "UserModel" },
 },
 { collection: "courses" });
 export default courseSchema;

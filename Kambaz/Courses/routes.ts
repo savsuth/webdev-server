@@ -1,5 +1,6 @@
 import CoursesDao from "./dao";
 import EnrollmentsDao from "../Enrollments/dao";
+import { requireUser, requireFaculty } from "../authorize";
 export default function CourseRoutes(app) {
   const dao = CoursesDao();
   const enrollmentsDao = EnrollmentsDao();
@@ -11,8 +12,10 @@ export default function CourseRoutes(app) {
     let { userId } = req.params;
     if (userId === "current") {
       const currentUser = req.session["currentUser"];
-      if (!currentUser) {
-        res.sendStatus(401);
+      // A faculty member's courses are the ones they created, not the ones they are enrolled in.
+      if (currentUser.role === "FACULTY") {
+        const courses = await dao.findCoursesByAuthor(currentUser._id);
+        res.json(courses);
         return;
       }
       userId = currentUser._id;
@@ -26,31 +29,42 @@ export default function CourseRoutes(app) {
     res.json(users);
   };
   const createCourse = async (req, res) => {
-    const newCourse = await dao.createCourse(req.body);
     const currentUser = req.session["currentUser"];
-    // Only a signed-in creator is enrolled; a signed-out visitor can still add a course.
-    if (currentUser) {
-      await enrollmentsDao.enrollUserInCourse(currentUser._id, newCourse._id);
-    }
+    const newCourse = await dao.createCourse({
+      ...req.body,
+      author: currentUser._id,
+    });
+    // The creator is also enrolled, so the course People screen lists them.
+    await enrollmentsDao.enrollUserInCourse(currentUser._id, newCourse._id);
     res.json(newCourse);
   };
   const deleteCourse = async (req, res) => {
     const { courseId } = req.params;
+    const currentUser = req.session["currentUser"];
+    const status = await dao.deleteCourse(courseId, currentUser._id);
+    if (status.deletedCount === 0) {
+      res.sendStatus(403);
+      return;
+    }
     await enrollmentsDao.unenrollAllUsersFromCourse(courseId);
-    const status = await dao.deleteCourse(courseId);
     res.send(status);
   };
   const updateCourse = async (req, res) => {
     const { courseId } = req.params;
     const courseUpdates = req.body;
-    const status = await dao.updateCourse(courseId, courseUpdates);
+    const currentUser = req.session["currentUser"];
+    const status = await dao.updateCourse(courseId, currentUser._id, courseUpdates);
+    if (status.matchedCount === 0) {
+      res.sendStatus(403);
+      return;
+    }
     res.send(status);
   };
-  app.get("/api/courses", findAllCourses);
-  app.get("/api/users/:userId/courses", findCoursesForEnrolledUser);
-  app.get("/api/courses/:cid/users", findUsersForCourse);
-  app.post("/api/courses", createCourse);
-  app.post("/api/users/current/courses", createCourse);
-  app.delete("/api/courses/:courseId", deleteCourse);
-  app.put("/api/courses/:courseId", updateCourse);
+  app.get("/api/courses", requireUser, findAllCourses);
+  app.get("/api/users/:userId/courses", requireUser, findCoursesForEnrolledUser);
+  app.get("/api/courses/:cid/users", requireUser, findUsersForCourse);
+  app.post("/api/courses", requireFaculty, createCourse);
+  app.post("/api/users/current/courses", requireFaculty, createCourse);
+  app.delete("/api/courses/:courseId", requireFaculty, deleteCourse);
+  app.put("/api/courses/:courseId", requireFaculty, updateCourse);
 }

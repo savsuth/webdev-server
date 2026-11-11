@@ -1,4 +1,5 @@
 import AssignmentsDao from "./dao";
+import { requireUser, requireFaculty } from "../authorize";
 export default function AssignmentRoutes(app) {
   const dao = AssignmentsDao();
   const findAssignmentsForCourse = async (req, res) => {
@@ -23,8 +24,8 @@ export default function AssignmentRoutes(app) {
     const status = await dao.updateAssignment(assignmentId, assignmentUpdates);
     res.send(status);
   };
-  app.get("/api/courses/:courseId/assignments", findAssignmentsForCourse);
-  app.post("/api/courses/:courseId/assignments", createAssignmentForCourse);
-  app.delete("/api/assignments/:assignmentId", deleteAssignment);
-  app.put("/api/assignments/:assignmentId", updateAssignment);
+  app.get("/api/courses/:courseId/assignments", requireUser, findAssignmentsForCourse);
+  app.post("/api/courses/:courseId/assignments", requireFaculty, createAssignmentForCourse);
+  app.delete("/api/assignments/:assignmentId", requireFaculty, deleteAssignment);
+  app.put("/api/assignments/:assignmentId", requireFaculty, updateAssignment);
 }

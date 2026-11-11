@@ -1,5 +1,8 @@
 import UsersDao from "./dao";
 import EnrollmentsDao from "../Enrollments/dao";
+import {
+  isStaff, requireUser, requireStaff, requireSelfOrStaff,
+} from "../authorize";
 export default function UserRoutes(app) {
   const dao = UsersDao();
   const enrollmentsDao = EnrollmentsDao();
@@ -36,10 +39,14 @@ export default function UserRoutes(app) {
   const updateUser = async (req, res) => {
     const { userId } = req.params;
     const userUpdates = req.body;
-    await dao.updateUser(userId, userUpdates);
     const currentUser = req.session["currentUser"];
+    // Only faculty and administrators change a role, so a student cannot promote themselves.
+    if (!isStaff(currentUser)) {
+      delete userUpdates.role;
+    }
+    await dao.updateUser(userId, userUpdates);
     // Synchronize the session only when the signed-in user is the one who was updated.
-    if (currentUser && currentUser._id === userId) {
+    if (currentUser._id === userId) {
       req.session["currentUser"] = { ...currentUser, ...userUpdates };
     }
     res.json(req.session["currentUser"]);
@@ -50,7 +57,9 @@ export default function UserRoutes(app) {
       res.status(400).json({ message: "Username already in use" });
       return;
     }
-    const currentUser = await dao.createUser(req.body);
+    // Sign up offers only the two roles of the application; anything else becomes a student.
+    const role = req.body.role === "FACULTY" ? "FACULTY" : "STUDENT";
+    const currentUser = await dao.createUser({ ...req.body, role });
     req.session["currentUser"] = currentUser;
     res.json(currentUser);
   };
@@ -76,11 +85,11 @@ export default function UserRoutes(app) {
     }
     res.json(currentUser);
   };
-  app.post("/api/users", createUser);
-  app.get("/api/users", findAllUsers);
-  app.get("/api/users/:userId", findUserById);
-  app.put("/api/users/:userId", updateUser);
-  app.delete("/api/users/:userId", deleteUser);
+  app.post("/api/users", requireStaff, createUser);
+  app.get("/api/users", requireUser, findAllUsers);
+  app.get("/api/users/:userId", requireUser, findUserById);
+  app.put("/api/users/:userId", requireSelfOrStaff, updateUser);
+  app.delete("/api/users/:userId", requireStaff, deleteUser);
   app.post("/api/users/signup", signup);
   app.post("/api/users/signin", signin);
   app.post("/api/users/signout", signout);

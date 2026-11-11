@@ -1,4 +1,5 @@
 import EnrollmentsDao from "./dao";
+import { requireSelfOrStaff } from "../authorize";
 export default function EnrollmentRoutes(app) {
   const dao = EnrollmentsDao();
   const enrollUserInCourse = async (req, res) => {
@@ -11,6 +12,6 @@ export default function EnrollmentRoutes(app) {
     const status = await dao.unenrollUserFromCourse(userId, courseId);
     res.send(status);
   };
-  app.post("/api/users/:userId/courses/:courseId", enrollUserInCourse);
-  app.delete("/api/users/:userId/courses/:courseId", unenrollUserFromCourse);
+  app.post("/api/users/:userId/courses/:courseId", requireSelfOrStaff, enrollUserInCourse);
+  app.delete("/api/users/:userId/courses/:courseId", requireSelfOrStaff, unenrollUserFromCourse);
 }
